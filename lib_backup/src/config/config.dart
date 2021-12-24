@@ -24,9 +24,7 @@ class Config {
   /// debug开关，上线需要关闭
   /// App运行在Release环境时，inProduction为true；当App运行在Debug和Profile环境时，inProduction为false
   static const bool inProduction = bool.fromEnvironment('dart.vm.product');
-  static const bool isTest = false;
-  static const int versionCode = 75; //防止工具箱被反编译更改版本
-  static const String version = '2.1.5-7d2b9be8'; //防止工具箱被反编译更改版本
+
   static const String packageName = 'com.nightmare.file_manager_example';
 
   static String aaptPath = '$dataPath/aapt';
