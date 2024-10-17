@@ -1,0 +1,58 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart"
+        },
+        {
+            "name": "Chrome",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "chrome",
+            "args": [
+                "--web-renderer",
+                "html"
+            ]
+        },
+        {
+            "name": "Linux",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "linux"
+        },
+        {
+            "name": "Attach Meizu(21)",
+            "request": "attach",
+            "type": "dart",
+            "deviceId": "MEIZU 21",
+        },
+        {
+            "name": "Windows",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "windows"
+        },
+        {
+            "name": "小米14",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "23127PN0CC",
+            "program": "lib/main.dart"
+        },
+        {
+            "name": "小米平板6s",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "24018RPACC"
+        },
+        {
+            "name": "魅族21",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "MEIZU 21",
+        },
+    ]
+}
