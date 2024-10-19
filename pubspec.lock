@@ -19,18 +19,22 @@ packages:
     source: hosted
     version: "5.2.0"
   app_channel:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "/Users/nightmare/Desktop/nightmare-space/app_channel"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "7b31624b6534bb0a4c0cf2546b952ea879b8cf9e"
+      url: "https://github.com/nightmare-space/app_channel"
+    source: git
     version: "0.0.1"
   app_manager:
     dependency: "direct main"
     description:
-      path: "/Users/nightmare/Desktop/nightmare-space/app_manager"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "4394915f1f794f290d475c2ce41911c1b4bd8ce0"
+      url: "https://github.com/nightmare-space/app_manager"
+    source: git
     version: "1.0.0+1"
   args:
     dependency: transitive

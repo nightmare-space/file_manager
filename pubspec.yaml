@@ -22,11 +22,7 @@ dependencies:
   open_file: ^3.5.9
   path: ^1.8.0
   app_manager:
-    path: /Users/nightmare/Desktop/nightmare-space/app_manager
-
-dependency_overrides:
-  app_channel:
-    path: /Users/nightmare/Desktop/nightmare-space/app_channel
+    git: https://github.com/nightmare-space/app_manager
 
 dev_dependencies:
   flutter_test:
