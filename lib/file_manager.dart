@@ -7,6 +7,9 @@ import 'package:global_repository/global_repository.dart';
 import 'controller/file_manager_controller.dart';
 import 'view/file_manager_view.dart';
 import 'file_app_select/file_select_page.dart';
+export 'server/file_server.dart';
+export 'file_manager_page.dart';
+export 'controller/file_manager_controller.dart';
 
 class FileManager {
   ///
@@ -30,7 +33,7 @@ class FileManager {
     return paths;
   }
 
-  static Future<String> selectDirectory({String? defaultPath}) async {
+  static Future<String?> selectDirectory({String? defaultPath}) async {
     // bool isSelect = await Get.to(const FileManagerSelectPage());
     // if (!isSelect) {
     //   return '';

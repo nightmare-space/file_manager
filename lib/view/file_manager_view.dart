@@ -1,3 +1,4 @@
+import 'package:file_manager/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -17,21 +18,28 @@ class FMView extends StatefulWidget {
   const FMView({
     super.key,
     this.mode = FMMode.normal,
+    this.controller,
   });
   final FMMode mode;
+  final FMController? controller;
 
   @override
   State<FMView> createState() => _FMViewState();
 }
 
 class _FMViewState extends State<FMView> {
+  _FMViewState() {
+    if (RuntimeEnvir.packageName != Config.packageName) {
+      Config.package = Config.flutterPackage;
+    }
+  }
   bool isGrid = true;
-  FMController controller = Get.put(FMController());
+
+  late FMController controller = widget.controller ?? Get.put(FMController());
 
   @override
   void initState() {
     super.initState();
-    controller.init();
   }
 
   Offset tapPosition = Offset.zero;
@@ -54,7 +62,6 @@ class _FMViewState extends State<FMView> {
                     itemBuilder: (context, index) {
                       FileEntity file = files[index];
                       bool isSelect = controller.selectFiles.contains(file);
-                      Log.d(isSelect);
                       return Material(
                         color: isSelect ? primaryColor.withOpacity(0.15) : Colors.transparent,
                         child: InkWell(
@@ -82,7 +89,7 @@ class _FMViewState extends State<FMView> {
                             FileEntity file = files[index];
                             return Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
+                                horizontal: 8.w,
                                 vertical: 8.w,
                               ),
                               decoration: BoxDecoration(
@@ -100,8 +107,9 @@ class _FMViewState extends State<FMView> {
                                         ? SvgPicture.asset(
                                             'assets/dir.svg',
                                             color: Theme.of(context).colorScheme.primary,
+                                            package: Config.package,
                                           )
-                                        : getIconByExt(file.name),
+                                        : getIconByExt(file.path),
                                   ),
                                   SizedBox(width: 8.w),
                                   Expanded(

@@ -24,7 +24,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   List<String> paths = [];
-  String path = '';
+  String? path = '';
   @override
   Widget build(BuildContext context) {
     bool isDark = window.platformBrightness == Brightness.dark;
@@ -67,7 +67,7 @@ class _AppState extends State<App> {
                 child: const Text('选择文件夹'),
               ),
               Text(paths.join('\n')),
-              Text(path),
+              Text(path ?? ''),
             ],
           ),
         ),

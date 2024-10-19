@@ -1,17 +1,51 @@
+import 'dart:io';
+
+import 'package:file_manager/controller/file_manager_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:global_repository/global_repository.dart';
+import 'package:path_provider/path_provider.dart';
+import 'config/config.dart';
+import 'controller/file_manafer_api.dart';
+import 'file_manager_page.dart';
 import 'view/file_manager_view.dart';
 import 'server/file_server.dart';
 
 Future<void> main() async {
   RuntimeEnvir.initEnvirWithPackageName('com.nightmare.file_manager');
-  await Server.start();
+  int port = await Server.start();
+  FMController controller = FMController();
+  controller.setPort(port, isRemote: true);
+  Get.put<FMController>(controller);
   runApp(const MyApp());
+  StatusBarUtil.transparent();
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  Future<void> init() async {
+    await Permission.manageExternalStorage.request();
+    await Permission.storage.request();
+    Directory? directory = await getExternalStorageDirectory();
+    Log.i('directory ${directory!.path}');
+    String package = RuntimeEnvir.packageName!;
+    String replace = '/Android/data/$package/files';
+    String sdcardPath = directory.path.replaceAll(replace, '');
+    FMController controller = Get.find();
+    controller.enterDir(sdcardPath);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +56,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       defaultTransition: Transition.native,
-      home: const FMView(),
+      home: const FileManagerPage(),
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 import '../config/config.dart';
+import 'file_manafer_api.dart';
 
 class FileEntity {
   String name;
@@ -63,6 +64,14 @@ int compareEntities(FileEntity a, FileEntity b) {
   }
 }
 
+// 这个用来标记当前的文件管理器模式
+// 1.local 此时数据可直接从本地加载，例如图片预览，以及文件的打开
+// 2.remote 此时数据需要从远程加载，图片预览是加载的远程图片。文件预览需要先下载
+enum FMType {
+  local,
+  remote,
+}
+
 class FMController extends GetxController {
   List<FileEntity> files = [];
   List<FileEntity> selectFiles = [];
@@ -70,14 +79,18 @@ class FMController extends GetxController {
   List<DirEntity> historys = [];
   String currentPath = '';
   String sdcardPath = '';
-  init() async {
-    await Permission.manageExternalStorage.request();
-    await Permission.storage.request();
-    Directory? directory = await getExternalStorageDirectory();
-    Log.i('directory ${directory!.path}');
-    String replace = '/Android/data/com.nightmare.file_manager/files';
-    sdcardPath = directory.path.replaceAll(replace, '');
-    enterDir(sdcardPath);
+  late FileManagerAPI api;
+  FMType type = FMType.local;
+
+  void setBaseUrl(String url, {bool isRemote = false}) {
+    api = FileManagerAPI(url);
+    if (isRemote) {
+      type = FMType.remote;
+    }
+  }
+
+  void setPort(int port, {bool isRemote = false}) {
+    setBaseUrl('http://localhost:$port/file');
   }
 
   void enterDir(String path) async {
@@ -89,50 +102,65 @@ class FMController extends GetxController {
       split.removeLast();
       currentPath = split.join('/');
     }
-
-    Dio dio = Dio();
-    Response response = await dio.get('http://localhost:${Config.port}/getdir', queryParameters: {
-      'path': currentPath,
-    });
-    List data = response.data;
+    List infos = await api.getDirInfos(currentPath);
+    // Log.i('infos $infos');
     DirEntity parent = DirEntity('..', currentPath);
-    for (var item in data) {
-      Log.i(item);
-      // TODO 测试多个安卓平台的兼容性
-      final regex = RegExp(r'^([d\-rwx]{10})\s+(\d+)\s+(\d+)\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})\s+(.+)$');
-      final match = regex.firstMatch(item);
-      if (match != null) {
-        // drwxrwx---  2       3452 2024-06-29 19:15 -1983762891
-        String permission = match.group(1)!;
-        String links = match.group(2)!;
-        String size = match.group(3)!;
-        String date = match.group(4)!;
-        String time = match.group(5)!;
-        String name = match.group(6)!;
-        if (item.startsWith('d')) {
-          DirEntity dirEntity = DirEntity(name, item);
-          dirEntity.permission = permission;
-          dirEntity.size = int.parse(size);
-          dirEntity.time = time;
-          dirEntity.fileCount = int.parse(links);
-          dirEntity.time = date;
-          dirEntity.parent = parent;
-          files.add(dirEntity);
-        } else {
-          FileEntity fileEntity = FileEntity(name, item);
-          fileEntity.permission = permission;
-          fileEntity.size = int.parse(size);
-          fileEntity.time = date;
-          fileEntity.fileCount = int.parse(links);
-          fileEntity.time = date;
-          fileEntity.parent = parent;
-          files.add(fileEntity);
-        }
+    for (List fileInfo in infos) {
+      String path = fileInfo[0];
+      String permission = fileInfo[1];
+      int size = fileInfo[2];
+      String time = fileInfo[3];
+      String type = fileInfo[4];
+      String name = path.split('/').last;
+      if (type == 'directory') {
+        DirEntity dirEntity = DirEntity(name, path);
+        dirEntity.permission = permission;
+        dirEntity.size = size;
+        dirEntity.time = time;
+        // dirEntity.fileCount = int.parse(links);
+        dirEntity.time = time;
+        dirEntity.parent = parent;
+        files.add(dirEntity);
+      }
+      if (type == 'file') {
+        FileEntity fileEntity = FileEntity(name, path);
+        fileEntity.permission = permission;
+        fileEntity.size = size;
+        fileEntity.time = time;
+        fileEntity.parent = parent;
+        files.add(fileEntity);
       }
     }
     files.sort(compareEntities);
     files.insert(0, DirEntity('..', ''));
     update();
+    //
+    // for (var item in data) {
+    //   Log.i(item);
+    //   // TODO 测试多个安卓平台的兼容性
+    //   final regex = RegExp(r'^([d\-rwx]{10})\s+(\d+)\s+(\d+)\s+(\d{4}-\d{2}-\d{2})\s+(\d{2}:\d{2})\s+(.+)$');
+    //   final match = regex.firstMatch(item);
+    //   if (match != null) {
+    //     // drwxrwx---  2       3452 2024-06-29 19:15 -1983762891
+    //     String permission = match.group(1)!;
+    //     String links = match.group(2)!;
+    //     String size = match.group(3)!;
+    //     String date = match.group(4)!;
+    //     String time = match.group(5)!;
+    //     String name = match.group(6)!;
+    //     if (item.startsWith('d')) {
+    //     } else {
+    //       FileEntity fileEntity = FileEntity(name, item);
+    //       fileEntity.permission = permission;
+    //       fileEntity.size = int.parse(size);
+    //       fileEntity.time = date;
+    //       fileEntity.fileCount = int.parse(links);
+    //       fileEntity.time = date;
+    //       fileEntity.parent = parent;
+    //       files.add(fileEntity);
+    //     }
+    //   }
+    // }
   }
 
   void enterParentDir() {
@@ -142,10 +170,13 @@ class FMController extends GetxController {
   Future<void> openFile(FileEntity file) async {
     String filePath = '$currentPath/${file.name}';
     if (file.name.isImg) {
-      Widget widget = InteractiveViewer(
-        maxScale: 5,
-        child: Image.file(
-          File(filePath),
+      Widget widget = GestureDetector(
+        onTap: () {
+          Get.back();
+        },
+        child: InteractiveViewer(
+          maxScale: 5,
+          child: Image.network(api.getImageUrl(file.path)),
         ),
       );
       Get.to(widget);
