@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_manager/utils/ext_util.dart';
+import 'package:file_manager/view/app/app.dart';
+import 'package:file_manager/view/flick_video_player/landscape_player/landscape_player.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:global_repository/global_repository.dart';
@@ -9,9 +11,10 @@ import 'package:lpinyin/lpinyin.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../config/config.dart';
-import 'file_manafer_api.dart';
+import 'file_manager_api.dart';
 
 class FileEntity {
   String name;
@@ -176,10 +179,23 @@ class FMController extends GetxController {
         },
         child: InteractiveViewer(
           maxScale: 5,
-          child: Image.network(api.getImageUrl(file.path)),
+          child: Image.network(api.getFileUrl(file.path)),
         ),
       );
       Get.to(widget);
+      return;
+    }
+    if (file.name.isVideo) {
+      Uri uri = Uri.parse(api.getFileUrl(file.path));
+      Log.i('open video -> $uri');
+      Get.to(LandscapePlayer(
+        url: uri.toString(),
+      ));
+      // Get.to(ChewieDemo(
+      //   url: uri.toString(),
+      // ));
+      // open with url launcher
+      // await launchUrl(uri);
       return;
     }
     // final extension = path.extension(filePath);

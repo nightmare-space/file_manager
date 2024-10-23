@@ -14,7 +14,7 @@ class FileManagerAPI {
     return response.data;
   }
 
-  String getImageUrl(String path) {
+  String getFileUrl(String path) {
     return '$baseUrl?action=file&path=$path';
   }
 }

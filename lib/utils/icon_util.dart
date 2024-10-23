@@ -52,7 +52,7 @@ Widget getIconByExt(String path) {
     //   String perfix = 'http://${uri.host}:${Config.port}';
     //   path = perfix + path;
     // }
-    String url = controller.api.getImageUrl(path);
+    String url = controller.api.getFileUrl(path);
     // Log.i('url $url');
     return Hero(
       tag: path,
@@ -61,7 +61,7 @@ Widget getIconByExt(String path) {
         height: 36.w,
         fit: BoxFit.cover,
         image: ResizeImage(
-          NetworkImage(controller.api.getImageUrl(path)),
+          NetworkImage(controller.api.getFileUrl(path)),
           width: 200,
         ),
       ),

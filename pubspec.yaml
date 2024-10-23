@@ -23,6 +23,10 @@ dependencies:
   path: ^1.8.0
   app_manager:
     git: https://github.com/nightmare-space/app_manager
+  url_launcher: ^6.3.1
+  chewie: ^1.8.5
+  flick_video_player: 0.9.0
+  visibility_detector: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:

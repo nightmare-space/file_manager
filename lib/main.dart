@@ -6,7 +6,7 @@ import 'package:get/get.dart' hide Response;
 import 'package:global_repository/global_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'config/config.dart';
-import 'controller/file_manafer_api.dart';
+import 'controller/file_manager_api.dart';
 import 'file_manager_page.dart';
 import 'view/file_manager_view.dart';
 import 'server/file_server.dart';
