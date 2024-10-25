@@ -6,7 +6,8 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.GET_PERMISSIONS"/>
+    <!-- Get the other app permission -->
+    <uses-permission android:name="android.permission.GET_PERMISSIONS" />
     <application
         android:label="file_manager"
         android:name="${applicationName}"

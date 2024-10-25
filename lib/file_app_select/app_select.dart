@@ -20,12 +20,13 @@ class _AppSelectState extends State<AppSelect> {
   void initState() {
     super.initState();
     Get.put(CheckController());
+    AppChannel channel = AppChannel();
+    appManagerController.setAppChannel(channel);
     appManagerController.getUserApp();
   }
 
   @override
   void dispose() {
-    Get.delete<CheckController>();
     super.dispose();
   }
 

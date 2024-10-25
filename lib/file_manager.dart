@@ -15,35 +15,43 @@ export 'server/file_server.dart';
 export 'file_manager_page.dart';
 export 'controller/file_manager_controller.dart';
 
+Future<String> _getExtenalStoragePath() async {
+  Directory? directory = await getExternalStorageDirectory();
+  Log.i('directory ${directory!.path}');
+  String package = RuntimeEnvir.packageName!;
+  String replace = '/Android/data/$package/files';
+  String sdcardPath = directory.path.replaceAll(replace, '');
+  return sdcardPath;
+}
+
+Future<void> requestPermission() async {
+  await Permission.manageExternalStorage.request();
+  await Permission.storage.request();
+}
+
 class FileManager {
   ///
   static Future<List<String>> selectFile({String? defaultPath}) async {
     int port = await Server.start();
     Get.put(CheckController());
-    Get.put(FMController()..setPort(port));
-    await Permission.manageExternalStorage.request();
-    await Permission.storage.request();
-    Directory? directory = await getExternalStorageDirectory();
-    Log.i('directory ${directory!.path}');
-    String package = RuntimeEnvir.packageName!;
-    String replace = '/Android/data/$package/files';
-    String sdcardPath = directory.path.replaceAll(replace, '');
+    FMController fmController = FMController()..setPort(port);
+    Get.replace(fmController);
+    await requestPermission();
     FMController controller = Get.find();
-    controller.enterDir(sdcardPath);
+    controller.enterDir(await _getExtenalStoragePath());
     bool? isSelect = await Get.to(const FileAppSelectPage());
     if (isSelect == null || !isSelect) {
       return [];
     }
-    List<String> paths = [];
+    // TODO(lin): rename CheckController to AppSelectController
     CheckController checkController = Get.find();
-    Log.i(checkController.check);
-    for (final item in checkController.check) {
-      paths.add(item?.sourceDir ?? '');
-    }
+    List<String> paths = checkController.check.map((e) => e?.sourceDir ?? '').toList();
+    Log.i('checkController.check -> ${checkController.check}');
     if (controller.selectFiles.isNotEmpty) {
       List<String> list = controller.selectFiles.map((e) => '${e.parent!.path}/${e.name}').toList();
       paths.addAll(list);
     }
+    Get.delete<CheckController>();
     return paths;
   }
 
