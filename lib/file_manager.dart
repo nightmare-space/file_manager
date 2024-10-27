@@ -15,7 +15,7 @@ export 'server/file_server.dart';
 export 'file_manager_page.dart';
 export 'controller/file_manager_controller.dart';
 
-Future<String> _getExtenalStoragePath() async {
+Future<String> getExtenalStoragePath() async {
   Directory? directory = await getExternalStorageDirectory();
   Log.i('directory ${directory!.path}');
   String package = RuntimeEnvir.packageName!;
@@ -38,7 +38,7 @@ class FileManager {
     Get.replace(fmController);
     await requestPermission();
     FMController controller = Get.find();
-    controller.enterDir(await _getExtenalStoragePath());
+    controller.enterDir(await getExtenalStoragePath());
     bool? isSelect = await Get.to(const FileAppSelectPage());
     if (isSelect == null || !isSelect) {
       return [];

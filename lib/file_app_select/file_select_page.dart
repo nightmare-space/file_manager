@@ -76,7 +76,7 @@ class _FileAppSelectPageState extends State<FileAppSelectPage> {
             Expanded(
               child: PageView(
                 controller: pageController,
-                children: [
+                children: const [
                   FMView(mode: FMMode.selectFile),
                   AppSelect(),
                 ],
