@@ -96,7 +96,7 @@ class FMController extends GetxController {
     setBaseUrl('http://localhost:$port/file');
   }
 
-  void enterDir(String path) async {
+  Future<void> enterDir(String path) async {
     currentPath = path;
     files.clear();
     if (currentPath.endsWith('..')) {
