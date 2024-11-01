@@ -53,7 +53,7 @@ Widget getIconByExt(String path) {
     //   path = perfix + path;
     // }
     String url = controller.api.getFileUrl(path);
-    // Log.i('url $url');
+    Log.i('url $url');
     return Hero(
       tag: path,
       child: Image(
@@ -61,7 +61,7 @@ Widget getIconByExt(String path) {
         height: 36.w,
         fit: BoxFit.cover,
         image: ResizeImage(
-          NetworkImage(controller.api.getFileUrl(path)),
+          NetworkImage(url),
           width: 200,
         ),
       ),

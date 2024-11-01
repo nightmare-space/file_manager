@@ -12,7 +12,10 @@ import 'view/file_manager_view.dart';
 import 'server/file_server.dart';
 
 Future<void> main() async {
-  RuntimeEnvir.initEnvirWithPackageName('com.nightmare.file_manager');
+  WidgetsFlutterBinding.ensureInitialized();
+  final dir = (await getApplicationSupportDirectory()).path;
+  Log.d('ApplicationSupportDirectory: $dir');
+  RuntimeEnvir.initEnvirWithPackageName('com.nightmare.file_manager', appSupportDirectory: dir);
   int port = await Server.start();
   FMController controller = FMController();
   controller.setPort(port, isRemote: true);
@@ -36,9 +39,14 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> init() async {
-    await Permission.manageExternalStorage.request();
-    await Permission.storage.request();
-    Directory? directory = await getExternalStorageDirectory();
+    Directory? directory;
+    if (GetPlatform.isAndroid) {
+      await Permission.manageExternalStorage.request();
+      await Permission.storage.request();
+      directory = await getExternalStorageDirectory();
+    } else {
+      directory = await getDownloadsDirectory();
+    }
     Log.i('directory ${directory!.path}');
     String package = RuntimeEnvir.packageName!;
     String replace = '/Android/data/$package/files';

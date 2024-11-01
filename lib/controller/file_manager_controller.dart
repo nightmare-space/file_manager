@@ -96,6 +96,16 @@ class FMController extends GetxController {
     setBaseUrl('http://localhost:$port/file');
   }
 
+  Future<void> enterHomeDir() async {
+    try {
+      String path = await api.getHomePath();
+      Log.e('path $path');
+      await enterDir(path);
+    } catch (e) {
+      Log.e('enterHomeDir error $e');
+    }
+  }
+
   Future<void> enterDir(String path) async {
     currentPath = path;
     files.clear();
@@ -106,7 +116,7 @@ class FMController extends GetxController {
       currentPath = split.join('/');
     }
     List infos = await api.getDirInfos(currentPath);
-    // Log.i('infos $infos');
+    Log.i('infos $infos');
     DirEntity parent = DirEntity('..', currentPath);
     for (List fileInfo in infos) {
       String path = fileInfo[0];
@@ -173,13 +183,17 @@ class FMController extends GetxController {
   Future<void> openFile(FileEntity file) async {
     String filePath = '$currentPath/${file.name}';
     if (file.name.isImg) {
-      Widget widget = GestureDetector(
-        onTap: () {
-          Get.back();
-        },
-        child: InteractiveViewer(
-          maxScale: 5,
-          child: Image.network(api.getFileUrl(file.path)),
+      Widget widget = PopScope(
+        canPop: true,
+        onPopInvokedWithResult: (didPop, result) {},
+        child: GestureDetector(
+          onTap: () {
+            Get.back();
+          },
+          child: InteractiveViewer(
+            maxScale: 5,
+            child: Image.network(api.getFileUrl(file.path)),
+          ),
         ),
       );
       Get.to(widget);

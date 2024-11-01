@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:global_repository/global_repository.dart';
 
 class FileManagerAPI {
   String baseUrl;
@@ -12,6 +13,15 @@ class FileManagerAPI {
     params['action'] = 'dir';
     Response response = await dio.get(baseUrl, queryParameters: params);
     return response.data;
+  }
+
+  Future<String> getHomePath() async {
+    Dio dio = Dio();
+    Map<String, dynamic> params = {};
+    params['action'] = 'get_home_path';
+    Response<Map<String, dynamic>> response = await dio.get(baseUrl, queryParameters: params);
+    Log.w('response.data ${response.data}');
+    return response.data!['path'];
   }
 
   String getFileUrl(String path) {

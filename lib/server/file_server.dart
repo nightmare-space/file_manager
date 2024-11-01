@@ -91,16 +91,27 @@ class Server {
   // 启动文件管理器服务端
   static Router getFileServerHandler() {
     var handler = createStaticHandler(
-      GetPlatform.isMacOS ? '/Users' : '/',
+      GetPlatform.isMacOS ? '/' : '/',
       listDirectories: true,
     );
     // app.get('/rename', handleRename);
     // app.get('/delete', handleDelete);
     // app.get('/dir', handleDir);
     app.get('/file', (Request request) async {
-      // Log.i('file -> ${request.requestedUri.queryParameters}');
+      Log.i('file -> ${request.requestedUri.queryParameters}');
       String action = request.requestedUri.queryParameters['action']!;
       switch (action) {
+        case 'get_home_path':
+          Log.i('get_home_path');
+          final map = {};
+          Log.i('map -> $map');
+          map['path'] = '';
+          if (GetPlatform.isMacOS) {
+            map['path'] = Platform.environment['HOME'];
+          }
+          Log.e('map -> $map');
+          corsHeader[HttpHeaders.contentTypeHeader] = ContentType.json.toString();
+          return Response.ok(jsonEncode(map), headers: corsHeader);
         case 'rename':
           return handleRename(request);
         case 'delete':
@@ -220,15 +231,15 @@ Future<List> getDirInfos(String path) async {
   List infos = [];
   await for (FileSystemEntity entity in directory.list()) {
     List<dynamic> info = [];
-    print('entity -> $entity');
+    // print('entity -> $entity');
     String entityPath = entity.path;
     FileStat fileStat = await FileStat.stat(entity.path);
     String modeString = fileStat.modeString();
     DateTime time = fileStat.modified;
     int size = fileStat.size;
-    Log.i('File mode: $modeString');
-    Log.i('File mode: $size');
-    Log.i('Accessed at: ${time.fmTime()}');
+    // Log.i('File mode: $modeString');
+    // Log.i('File mode: $size');
+    // Log.i('Accessed at: ${time.fmTime()}');
     info.add(entityPath);
     info.add(modeString);
     info.add(size);

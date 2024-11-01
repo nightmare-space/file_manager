@@ -28,6 +28,10 @@ dependencies:
   flick_video_player: 0.9.0
   visibility_detector: ^0.4.0+2
 
+dependency_overrides:
+  app_channel:
+    path: /Users/nightmare/Desktop/nightmare-space/app_channel
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

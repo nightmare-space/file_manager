@@ -23,7 +23,6 @@ class _LandscapePlayerState extends State<LandscapePlayer> {
   void initState() {
     super.initState();
     VideoPlayerController videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(widget.url));
-
     flickManager = FlickManager(videoPlayerController: videoPlayerController);
   }
 
@@ -35,13 +34,24 @@ class _LandscapePlayerState extends State<LandscapePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FlickVideoPlayer(
-        flickManager: flickManager,
-        preferredDeviceOrientation: [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft],
-        systemUIOverlay: [],
-        flickVideoWithControls: FlickVideoWithControls(
-          controls: LandscapePlayerControls(),
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        SystemChrome.setPreferredOrientations(
+          [
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ],
+        );
+      },
+      child: Scaffold(
+        body: FlickVideoPlayer(
+          flickManager: flickManager,
+          preferredDeviceOrientation: [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft],
+          systemUIOverlay: [],
+          flickVideoWithControls: FlickVideoWithControls(
+            controls: LandscapePlayerControls(),
+          ),
         ),
       ),
     );
