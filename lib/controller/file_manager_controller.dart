@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_manager/utils/ext_util.dart';
 import 'package:file_manager/view/app/app.dart';
+import 'package:file_manager/view/chewie/play.dart';
 import 'package:file_manager/view/flick_video_player/landscape_player/landscape_player.dart';
+import 'package:file_manager/view/media-kit/media-kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:global_repository/global_repository.dart';
@@ -116,7 +118,7 @@ class FMController extends GetxController {
       currentPath = split.join('/');
     }
     List infos = await api.getDirInfos(currentPath);
-    Log.i('infos $infos');
+    // Log.i('infos $infos');
     DirEntity parent = DirEntity('..', currentPath);
     for (List fileInfo in infos) {
       String path = fileInfo[0];
@@ -202,9 +204,14 @@ class FMController extends GetxController {
     if (file.name.isVideo) {
       Uri uri = Uri.parse(api.getFileUrl(file.path));
       Log.i('open video -> $uri');
-      Get.to(LandscapePlayer(
+
+      Get.to(PlayWidget(
         url: uri.toString(),
       ));
+      // Get.to(PlayWidget(
+      //   url: uri.toString(),
+      // ));
+
       // Get.to(ChewieDemo(
       //   url: uri.toString(),
       // ));
