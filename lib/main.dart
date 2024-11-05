@@ -47,6 +47,11 @@ class _MyAppState extends State<MyApp> {
     } else {
       directory = await getDownloadsDirectory();
     }
+    if (GetPlatform.isWindows) {
+      FMController controller = Get.find();
+      controller.enterDir('/');
+      return;
+    }
     Log.i('directory ${directory!.path}');
     String package = RuntimeEnvir.packageName!;
     String replace = '/Android/data/$package/files';

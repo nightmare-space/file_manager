@@ -3,13 +3,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_manager/config/config.dart';
-import 'package:get/utils.dart';
-import 'package:global_repository/global_repository.dart';
+// import 'package:get/utils.dart';
+import 'package:global_repository/global_repository_dart.dart';
+import 'package:signale/signale.dart';
 import 'package:path/path.dart';
 import 'package:shelf_router/shelf_router.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf/shelf.dart';
 import 'package:shelf_static/shelf_static.dart';
+
+import 'window_util.dart';
 
 var app = Router();
 final corsHeader = {
@@ -18,6 +21,8 @@ final corsHeader = {
   'Access-Control-Allow-Methods': '*',
   'Access-Control-Allow-Credentials': 'true',
 };
+
+String tag = 'FileServer';
 
 class Server {
   static List<String> routes = [
@@ -30,7 +35,7 @@ class Server {
   // 启动文件管理器服务端
   // TODO(lin) 支持 windows 的盘符
   static Future<int> start() async {
-    Router fileRouter = getFileServerHandler();
+    Router fileRouter = await getFileServerHandler();
     final cross = const Pipeline().addMiddleware((innerHandler) {
       return (request) async {
         final response = await innerHandler(request);
@@ -50,7 +55,7 @@ class Server {
       port,
       shared: true,
     );
-    print('File Serer start with ${server.address.address}:${server.port}');
+    Log.i('File Serer start with http://${server.address.address}:${server.port}', tag: tag);
     return port;
   }
 
@@ -58,7 +63,7 @@ class Server {
     Log.i(request.requestedUri.queryParameters);
     String path = request.requestedUri.queryParameters['path']!;
     String name = request.requestedUri.queryParameters['name']!;
-    File(path).renameSync(dirname(path) + '/' + name);
+    File(path).renameSync('${dirname(path)}/$name');
     corsHeader[HttpHeaders.contentTypeHeader] = ContentType.text.toString();
     return Response.ok(
       "success",
@@ -81,6 +86,29 @@ class Server {
     Log.i(request.requestedUri.queryParameters);
     String path = request.requestedUri.queryParameters['path']!;
     corsHeader[HttpHeaders.contentTypeHeader] = ContentType.json.toString();
+    Log.i('path -> $path', tag: tag);
+    if (path == '/' && Platform.isWindows) {
+      final list = await getWindowsDisks();
+      List dirInfos = [];
+      for (final partition in list) {
+        List<dynamic> info = [];
+        FileStat fileStat = await FileStat.stat(path);
+        Log.i('stat -> $fileStat', tag: tag);
+        String modeString = fileStat.modeString();
+        DateTime time = fileStat.modified;
+        int size = fileStat.size;
+        info.add('/$partition');
+        info.add(modeString);
+        info.add(size);
+        info.add(time.fmTime());
+        info.add(fileStat.type.toString());
+        dirInfos.add(info);
+      }
+      return Response.ok(
+        jsonEncode(dirInfos),
+        headers: corsHeader,
+      );
+    }
     List dirInfos = await getDirInfos(path);
     return Response.ok(
       jsonEncode(dirInfos),
@@ -88,17 +116,30 @@ class Server {
     );
   }
 
+  static Map windowsHandlers = {};
   // 启动文件管理器服务端
-  static Router getFileServerHandler() {
+  static Future<Router> getFileServerHandler() async {
     var handler = createStaticHandler(
-      GetPlatform.isMacOS ? '/' : '/',
+      '/',
       listDirectories: true,
     );
+    if (Platform.isWindows) {
+      final list = await getWindowsDisks();
+      Log.i('list -> $list', tag: tag);
+      for (final part in list) {
+        var handler = createStaticHandler(
+          part,
+          listDirectories: true,
+        );
+        windowsHandlers[part] = handler;
+        Log.i('windowsHandlers -> $windowsHandlers', tag: tag);
+      }
+    }
     // app.get('/rename', handleRename);
     // app.get('/delete', handleDelete);
     // app.get('/dir', handleDir);
     app.get('/file', (Request request) async {
-      Log.i('file -> ${request.requestedUri.queryParameters}');
+      Log.i('file -> ${request.requestedUri.queryParameters}', tag: tag);
       String action = request.requestedUri.queryParameters['action']!;
       switch (action) {
         case 'get_home_path':
@@ -106,7 +147,7 @@ class Server {
           final map = {};
           Log.i('map -> $map');
           map['path'] = '';
-          if (GetPlatform.isMacOS) {
+          if (Platform.isMacOS) {
             map['path'] = Platform.environment['HOME'];
           }
           Log.e('map -> $map');
@@ -120,6 +161,17 @@ class Server {
           return handleDir(request);
         case 'file':
           String path = request.requestedUri.queryParameters['path']!;
+          Log.i("path -> $path", tag: tag);
+          if (Platform.isWindows) {
+            String firstDirName = path.split('/')[0];
+            Log.i("firstDirName -> $firstDirName", tag: tag);
+            String newPath = path.substring(2);
+            Uri newUri = Uri.parse('${request.requestedUri.scheme}://${request.requestedUri.host}:${request.requestedUri.port}$newPath');
+            Log.i('newUri -> $newUri', tag: tag);
+            Request newRequest = Request('GET', newUri);
+            return windowsHandlers[firstDirName](newRequest);
+          }
+
           // Log.i(request.requestedUri);
           // Log.i(request.requestedUri.replace(path: path, queryParameters: {}));
           Uri newUri = Uri.parse('${request.requestedUri.scheme}://${request.requestedUri.host}:${request.requestedUri.port}$path');

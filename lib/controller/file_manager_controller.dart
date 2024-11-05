@@ -108,17 +108,43 @@ class FMController extends GetxController {
     }
   }
 
+  bool isDriveLetterPathRoot(String path) {
+    RegExp regExp = RegExp(r'^[A-Za-z]://\.\.');
+    return regExp.hasMatch(path);
+  }
+
   Future<void> enterDir(String path) async {
+    if (path == '//C:') {
+      path = 'C:/';
+    }
+    if (path == '//D:') {
+      path = 'D:/';
+    }
+    if (path == '//E:') {
+      path = 'E:/';
+    }
+    if (path == '//F:') {
+      path = 'F:/';
+    }
+    if (isDriveLetterPathRoot(path)) {
+      path = '/';
+    }
     currentPath = path;
     files.clear();
     if (currentPath.endsWith('..')) {
+      Log.i('currentPath enter-> $currentPath');
+      // /Users/nightmare/Downloads/.. -> /Users/nightmare/Downloads
       currentPath = currentPath.substring(0, currentPath.length - 3);
-      List<String> split = currentPath.split('/');
+      List<String> split = currentPath.split(RegExp(r'/|\\'));
       split.removeLast();
       currentPath = split.join('/');
+      if (currentPath.isEmpty) {
+        currentPath = '/';
+      }
+      Log.i('currentPath new->$currentPath<-');
     }
     List infos = await api.getDirInfos(currentPath);
-    // Log.i('infos $infos');
+    Log.i('infos $infos');
     DirEntity parent = DirEntity('..', currentPath);
     for (List fileInfo in infos) {
       String path = fileInfo[0];
@@ -126,7 +152,7 @@ class FMController extends GetxController {
       int size = fileInfo[2];
       String time = fileInfo[3];
       String type = fileInfo[4];
-      String name = path.split('/').last;
+      String name = path.split(RegExp(r'/|\\')).last;
       if (type == 'directory') {
         DirEntity dirEntity = DirEntity(name, path);
         dirEntity.permission = permission;
