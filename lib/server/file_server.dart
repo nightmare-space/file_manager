@@ -89,6 +89,7 @@ class Server {
     Log.i('path -> $path', tag: tag);
     if (path == '/' && Platform.isWindows) {
       final list = await getWindowsDisks();
+      Log.d("list -> $list");
       List dirInfos = [];
       for (final partition in list) {
         List<dynamic> info = [];
@@ -146,7 +147,7 @@ class Server {
           Log.i('get_home_path');
           final map = {};
           Log.i('map -> $map');
-          map['path'] = '';
+          map['path'] = '/';
           if (Platform.isMacOS) {
             map['path'] = Platform.environment['HOME'];
           }
@@ -163,9 +164,11 @@ class Server {
           String path = request.requestedUri.queryParameters['path']!;
           Log.i("path -> $path", tag: tag);
           if (Platform.isWindows) {
+            path = path.replaceAll('\\', '/');
             String firstDirName = path.split('/')[0];
             Log.i("firstDirName -> $firstDirName", tag: tag);
             String newPath = path.substring(2);
+            Log.i("newPath -> $newPath", tag: tag);
             Uri newUri = Uri.parse('${request.requestedUri.scheme}://${request.requestedUri.host}:${request.requestedUri.port}$newPath');
             Log.i('newUri -> $newUri', tag: tag);
             Request newRequest = Request('GET', newUri);
