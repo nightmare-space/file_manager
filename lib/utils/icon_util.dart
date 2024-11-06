@@ -53,7 +53,7 @@ Widget getIconByExt(String path) {
     //   path = perfix + path;
     // }
     String url = controller.api.getFileUrl(path);
-    Log.i('url $url');
+    Log.i('image url $url');
     return Hero(
       tag: path,
       child: Image(

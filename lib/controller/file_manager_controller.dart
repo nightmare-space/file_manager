@@ -227,7 +227,9 @@ class FMController extends GetxController {
     }
     if (file.name.isVideo) {
       Uri uri = Uri.parse(api.getFileUrl(filePath));
+      Response? response = await Dio().head(uri.toString());
       Log.i('open video -> $uri');
+      Log.i('response.headers -> ${response.headers}');
 
       Get.to(LandscapePlayer(
         url: uri.toString(),

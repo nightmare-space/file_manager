@@ -172,7 +172,7 @@ class Server {
             Log.i("newPath -> $newPath", tag: tag);
             Uri newUri = Uri.parse('${request.requestedUri.scheme}://${request.requestedUri.host}:${request.requestedUri.port}$newPath');
             Log.i('newUri -> $newUri', tag: tag);
-            Request newRequest = Request('GET', newUri);
+            Request newRequest = Request('GET', newUri, headers: request.headers);
             return windowsHandlers[firstDirName](newRequest);
           }
 
@@ -180,7 +180,7 @@ class Server {
           // Log.i(request.requestedUri.replace(path: path, queryParameters: {}));
           Uri newUri = Uri.parse('${request.requestedUri.scheme}://${request.requestedUri.host}:${request.requestedUri.port}$path');
           Log.i(newUri);
-          Request newRequest = Request('GET', newUri);
+          Request newRequest = Request('GET', newUri, headers: request.headers);
           return handler(newRequest);
         default:
           return Response.ok(
