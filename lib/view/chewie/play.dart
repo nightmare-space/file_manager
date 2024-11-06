@@ -98,6 +98,9 @@ class _PlayWidgetState extends State<PlayWidget> {
         subtitleStyle: const SubtitleStyle(
           textColor: Colors.white,
           hasBorder: true,
+          borderStyle: SubtitleBorderStyle(
+            color: Colors.black,
+          ),
         ),
         videoChild: playerWidget,
       ),

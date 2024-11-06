@@ -114,19 +114,16 @@ class FMController extends GetxController {
   }
 
   Future<void> enterDir(String path) async {
-    if (path == '//C:') {
-      path = 'C:/';
-    }
-    if (path == '//D:') {
-      path = 'D:/';
-    }
-    if (path == '//E:') {
-      path = 'E:/';
-    }
-    if (path == '//F:') {
-      path = 'F:/';
+    Log.i('enterDir raw path -> $path');
+    final regex = RegExp(r'^//([A-Z]):$');
+    final match = regex.firstMatch(path);
+    if (match != null) {
+      // enterDir raw path -> //C:
+      // need to replace to C:/
+      path = '${match.group(1)}:';
     }
     if (isDriveLetterPathRoot(path)) {
+      Log.i('path -> $path is windows driver root replace to /');
       path = '/';
     }
     currentPath = path;
@@ -143,8 +140,9 @@ class FMController extends GetxController {
       }
       Log.i('currentPath new->$currentPath<-');
     }
+    Log.i('enterDir request path -> $currentPath');
     List infos = await api.getDirInfos(currentPath);
-    Log.i('infos $infos');
+    // Log.i('infos $infos');
     DirEntity parent = DirEntity('..', currentPath);
     for (List fileInfo in infos) {
       String path = fileInfo[0];
@@ -220,7 +218,7 @@ class FMController extends GetxController {
           },
           child: InteractiveViewer(
             maxScale: 5,
-            child: Image.network(api.getFileUrl(file.path)),
+            child: Image.network(api.getFileUrl(filePath)),
           ),
         ),
       );
@@ -228,10 +226,10 @@ class FMController extends GetxController {
       return;
     }
     if (file.name.isVideo) {
-      Uri uri = Uri.parse(api.getFileUrl(file.path));
+      Uri uri = Uri.parse(api.getFileUrl(filePath));
       Log.i('open video -> $uri');
 
-      Get.to(PlayWidget(
+      Get.to(LandscapePlayer(
         url: uri.toString(),
       ));
       // Get.to(PlayWidget(

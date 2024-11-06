@@ -235,7 +235,7 @@ class _FMViewState extends State<FMView> {
                           );
                         }
                         bool isDriveLetterPath(String path) {
-                          RegExp regExp = RegExp(r'^[A-Za-z]:/$');
+                          RegExp regExp = RegExp(r'^[A-Za-z]:$');
                           return regExp.hasMatch(path);
                         }
 
@@ -245,7 +245,7 @@ class _FMViewState extends State<FMView> {
                         }
 
                         String extractDriveLetter(String path) {
-                          RegExp regExp = RegExp(r'^[A-Za-z]:/');
+                          RegExp regExp = RegExp(r'^[A-Za-z]:');
                           Match? match = regExp.firstMatch(path);
                           if (match != null) {
                             return match.group(0)!;
@@ -257,11 +257,7 @@ class _FMViewState extends State<FMView> {
                         if (isDriveLetterPath(currentPath)) {
                           dir = ['/', currentPath];
                         } else if (isDriveLetterPathStart(currentPath)) {
-                          String driver = extractDriveLetter(currentPath);
-                          String subPath = currentPath.substring(4);
-                          Log.e('extractDriveLetter -> $driver');
-                          Log.e('subPath -> $subPath');
-                          dir = ['/', driver, ...subPath.split(RegExp(r'/|\\'))];
+                          dir = ['/', ...currentPath.split(RegExp(r'/|\\'))];
                         } else {
                           dir = currentPath.split(RegExp(r'/|\\'));
                           dir[0] = '/';
@@ -269,7 +265,7 @@ class _FMViewState extends State<FMView> {
 
                         // 提取 E://Docker 的 E:/
 
-                        Log.w('currentPath -> $currentPath dir -> $dir');
+                        Log.w('header currentPath -> $currentPath dir -> $dir');
                         List<Widget> children = [];
                         for (int i = 0; i < dir.length; i++) {
                           // Log.i(i.toString() + dir.take(i + 1).join('/'));
@@ -301,7 +297,7 @@ class _FMViewState extends State<FMView> {
                                 // FileManagerController controller = Get.find();
                                 String path = dir.take(i + 1).join('/').replaceAll('//', '/');
                                 bool isDriveLetterPathStart(String path) {
-                                  RegExp regExp = RegExp(r'^/[A-Za-z]:/');
+                                  RegExp regExp = RegExp(r'^/[A-Za-z]:');
                                   return regExp.hasMatch(path);
                                 }
 

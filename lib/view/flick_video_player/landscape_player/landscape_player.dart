@@ -82,6 +82,7 @@ class _LandscapePlayerState extends State<LandscapePlayer> {
           systemUIOverlay: [],
           flickVideoWithControls: FlickVideoWithControls(
             controls: LandscapePlayerControls(),
+            closedCaptionTextStyle: TextStyle(fontSize: 18),
           ),
         ),
       ),
