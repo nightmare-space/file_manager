@@ -98,7 +98,7 @@ class Server {
         String modeString = fileStat.modeString();
         DateTime time = fileStat.modified;
         int size = fileStat.size;
-        info.add('/$partition');
+        info.add('$partition');
         info.add(modeString);
         info.add(size);
         info.add(time.fmTime());
@@ -165,8 +165,9 @@ class Server {
           Log.i("path -> $path", tag: tag);
           if (Platform.isWindows) {
             path = path.replaceAll('\\', '/');
+            // 获取盘符
             String firstDirName = path.split('/')[0];
-            Log.i("firstDirName -> $firstDirName", tag: tag);
+            Log.i("driver name -> $firstDirName", tag: tag);
             String newPath = path.substring(2);
             Log.i("newPath -> $newPath", tag: tag);
             Uri newUri = Uri.parse('${request.requestedUri.scheme}://${request.requestedUri.host}:${request.requestedUri.port}$newPath');
