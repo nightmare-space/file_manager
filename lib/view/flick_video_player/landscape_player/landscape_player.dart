@@ -76,13 +76,16 @@ class _LandscapePlayerState extends State<LandscapePlayer> {
         );
       },
       child: Scaffold(
+        // 研究FlickVideoPlayer怎么加载的字幕
         body: FlickVideoPlayer(
           flickManager: flickManager,
           preferredDeviceOrientation: [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft],
           systemUIOverlay: [],
           flickVideoWithControls: FlickVideoWithControls(
             controls: LandscapePlayerControls(),
-            closedCaptionTextStyle: TextStyle(fontSize: 18),
+            closedCaptionTextStyle: TextStyle(
+              fontSize: 18,
+            ),
           ),
         ),
       ),

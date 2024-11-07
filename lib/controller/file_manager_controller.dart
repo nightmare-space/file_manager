@@ -50,19 +50,33 @@ extension EntityExt on FileEntity {
   }
 }
 
-final RegExp _englishRegExp = RegExp(r'^[a-zA-Z]+$');
-int compareEntities(FileEntity a, FileEntity b) {
-  bool isPureEnglish(String str) {
-    return _englishRegExp.hasMatch(str);
-  }
+final RegExp chineseRegExp = RegExp(r'[\u4e00-\u9fa5]');
+bool containsChinese(String input) {
+  return chineseRegExp.hasMatch(input);
+}
 
+final RegExp englishStartRegExp = RegExp(r'^[a-zA-Z]');
+
+bool startsWithEnglish(String input) {
+  return englishStartRegExp.hasMatch(input);
+}
+
+int compareEntities(FileEntity a, FileEntity b) {
   if (a is DirEntity && b is! DirEntity) {
     return -1;
   } else if (a is! DirEntity && b is DirEntity) {
     return 1;
   } else {
-    if (isPureEnglish(a.name) && isPureEnglish(b.name)) {
+    bool aStartsWithEnglish = startsWithEnglish(a.name);
+    bool bStartsWithEnglish = startsWithEnglish(b.name);
+    if (aStartsWithEnglish && aStartsWithEnglish) {
       return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    }
+    if (!aStartsWithEnglish && bStartsWithEnglish) {
+      return 1;
+    }
+    if (aStartsWithEnglish && !bStartsWithEnglish) {
+      return -1;
     }
     return PinyinHelper.getPinyinE(a.name).compareTo(PinyinHelper.getPinyinE(b.name));
     // return a.name.toLowerCase().compareTo(b.name.toLowerCase());
@@ -230,7 +244,9 @@ class FMController extends GetxController {
       Response? response = await Dio().head(uri.toString());
       Log.i('open video -> $uri');
       Log.i('response.headers -> ${response.headers}');
-
+      // Get.to(MyScreen(
+      //   url: uri.toString(),
+      // ));
       Get.to(LandscapePlayer(
         url: uri.toString(),
       ));

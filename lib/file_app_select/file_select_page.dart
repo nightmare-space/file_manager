@@ -33,6 +33,7 @@ class _FileAppSelectPageState extends State<FileAppSelectPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle(statusBarIconBrightness: Brightness.dark),
         leading: NiIconButton(
           onTap: () {
             Navigator.of(context).pop();
